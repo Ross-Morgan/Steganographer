@@ -1,0 +1,2 @@
+Freepik:
+    - image logo
