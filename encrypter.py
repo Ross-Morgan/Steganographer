@@ -25,7 +25,7 @@ class ImageEncrypter:
             return
 
         # Open file for appending
-        with open(filename, "ab", encoding="utf-8") as file:
+        with open(filename, "ab") as file:
             # Write encoded message to file
             file.write(bytes(msg, encoding="utf-8"))
 
@@ -44,14 +44,14 @@ class ImageEncrypter:
             return ''
 
         # Open file for reading
-        with open(filename, "rb", encoding="utf-8") as file:
+        with open(filename, "rb") as file:
             try:
                 # Move cursor to start of message
                 file.seek(self.get_offset(file.read()))
                 contents = file.read().decode('utf-8')
             except Exception as e:
                 print(e)
-                contents =  ''
+                contents =  ""
 
         if print_message:
             print(f"Read Message: {contents}")
@@ -63,13 +63,9 @@ class ImageEncrypter:
             return
 
         # Open file for writing
-        file = open(filename, "rb+", encoding="utf-8")
-
-        # Truncate file to len(file) - n bytes
-        file.truncate(len(file.read())- self.message_length(filename))
-
-        file.close()
-        del file
+        with open(filename, "rb+", encoding="utf-8") as file:
+            # Truncate file to len(file) - n bytes
+            file.truncate(len(file.read())- self.message_length(filename))
 
 
 def main():
@@ -78,5 +74,5 @@ def main():
     enc.read_message(print_message=True)
 
 
-    if __name__ == "__main__":
+if __name__ == "__main__":
     main()

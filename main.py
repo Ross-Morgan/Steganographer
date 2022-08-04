@@ -1,24 +1,19 @@
 # I am entirely aware this code has nowhere near enough comments :)
 
-# Module imports
-from PyQt5 import QtCore, QtGui, QtWidgets
-from queue import Queue
-from PIL import Image
-import easygui
+# Stdlib imports
 import getpass
-import sys
 import os
+import pathlib
+import sys
+from queue import Queue
 
-from tkinter.filedialog import askdirectory, askopenfilename, askopenfilenames
-import tkinter
-
+# Module imports
+from PIL import Image
+from PyQt5 import QtCore, QtGui, QtWidgets
 
 # File imports
 from assets import Assets
 from encrypter import ImageEncrypter
-
-tkinter.Tk().withdraw()
-
 
 WINDOW_TITLE = "Steganographer"
 WINDOW_ICON =  Assets.image_icon
@@ -126,19 +121,19 @@ class MainWindow(QtWidgets.QMainWindow):
         self.reset_file_button.clicked.connect(self.remove_message)
 
     def write_message(self):
-        message = easygui.enterbox("Enter Message: ", title="Message Prompt")
+        message, ok = QtWidgets.QInputDialog.getText(None, "Message", "Input Message:")
         if message:
             self.encrypter.write_message(self.current_image, message)
         else:
-            easygui.msgbox("Error - Message Invalid")
+            print("Error - Message Invalid")
 
     def read_message(self):
         message = self.encrypter.read_message(self.current_image)
 
         if message:
-            easygui.msgbox(message)
+            print(message)
         else:
-            easygui.msgbox("Error - No message within file")
+            print("Error - No message within file")
 
     def remove_message(self):
         self.encrypter.reset_image(self.current_image)
@@ -155,7 +150,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def open_current_image(self):
         if self.current_image:
-            os.system(f'"{self.current_image}"')
+            os.system(f'"{pathlib.Path(self.current_image)!s}"')
 
     def update_counter(self):
         self.queue_length_counter.setText(str(self.image_queue.qsize()))
@@ -191,7 +186,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.update_counter()
 
     def select_file(self):
-        image_path = askopenfilename(filetypes=self._filetypes, initialdir=f"C:\\Users\\{USER}\\Documents", title="Select Image")
+        image_path, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Open Image")
 
         if not image_path:
             return
@@ -200,12 +195,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.update_image()
 
     def select_files(self):
-        files = askopenfilenames(filetypes=self._filetypes, initialdir=f"C:\\Users\\{USER}\\Documents", title="Select Images")
+        files, _ = QtWidgets.QFileDialog.getOpenFileNames(None, "Open Images")
 
         if not files:
             return
-
-        files = list(files)
 
         self.current_image = files[0]
         self.update_image()
@@ -214,7 +207,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.fill_queue(files)
 
     def select_directory(self):
-        directory = askdirectory(initialdir=f"C:\\Users\\{USER}\\Documents", title="Select Directory")
+        directory = QtWidgets.QFileDialog.getExistingDirectory(None, "Select Directory")
 
         if not directory:
             return
@@ -235,14 +228,15 @@ class MainWindow(QtWidgets.QMainWindow):
         files.remove(self.current_image)
         self.fill_queue(files)
 
+
 def main():
     app = QtWidgets.QApplication(sys.argv)
 
     ui = MainWindow()
     ui.show()
 
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
+
 
 if __name__ == "__main__":
     main()
-    # easygui.enterbox("Enter Message: ")
